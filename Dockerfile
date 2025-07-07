@@ -28,7 +28,8 @@ RUN rm -rf node_modules package-lock.json && \
     npm install --legacy-peer-deps && \
     npm rebuild && \
     npm run build
-
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 # Puerto expuesto por Laravel
 EXPOSE 8000
 
