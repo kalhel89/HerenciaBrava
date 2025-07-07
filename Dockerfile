@@ -10,10 +10,6 @@ COPY composer.* ./
 RUN composer install --no-dev --prefer-dist --no-scripts
 COPY . .
 
-# ➜ crear .env y generar clave
-RUN cp .env.example .env && \
-    php artisan key:generate --force
-
-# dependencias JS + build Vite
+# Dependencias JS + build Vite
 RUN npm install --legacy-peer-deps
 RUN npm run build
