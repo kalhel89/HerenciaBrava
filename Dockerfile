@@ -1,7 +1,7 @@
 # ---------- 1) Etapa de build ----------
 FROM php:8.3-cli AS build
 
-# Instala system deps + Composer + Node
+# Deps del sistema + Composer + Node 20
 RUN apt-get update -y && \
     apt-get install -y git curl unzip nano && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
@@ -10,18 +10,23 @@ RUN apt-get update -y && \
 
 WORKDIR /app
 
-# Cache composer
+# 1. Instalar dependencias PHP
 COPY composer.* ./
 RUN composer install --no-dev --prefer-dist --no-scripts
 
-# Copia resto del proyecto
+# 2. Copiar proyecto completo
 COPY . .
 
-# Compila assets
-RUN npm install && npm run build && \
-    php artisan key:generate --force
+# 3. Generar la APP_KEY *antes* de compilar Vite
+RUN php artisan key:generate --force
 
-# ---------- 2) Etapa final más liviana ----------
+# 4. Instalar dependencias JS (usar --legacy-peer-deps para evitar conflictos)
+RUN npm install --legacy-peer-deps
+
+# 5. Compilar Vite
+RUN npm run build
+
+# ---------- 2) Etapa final ----------
 FROM php:8.3-cli
 
 RUN apt-get update -y && \
